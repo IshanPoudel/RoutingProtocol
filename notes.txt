@@ -1,0 +1,40 @@
+To construct the topology table with costs until convergence, we can use the Distance Vector Routing algorithm. Starting with each router's own table, we exchange information with neighboring routers to update each other's tables until no more updates are required.
+
+Here is the initial configuration table for each router:
+
+Router 0:
+
+Directly connected to: Router 1, Router 4
+Costs: Router 1 (1), Router 4 (4), Router 0 (0)
+Router 1:
+
+Directly connected to: Router 0, Router 2, Router 4
+Costs: Router 0 (1), Router 2 (1), Router 4 (1), Router 1 (0)
+Router 2:
+
+Directly connected to: Router 1, Router 3
+Costs: Router 1 (1), Router 3 (1), Router 2 (0)
+Router 3:
+
+Directly connected to: Router 2, Router 4
+Costs: Router 2 (1), Router 4 (1), Router 3 (0)
+Router 4:
+
+Directly connected to: Router 0, Router 1, Router 3
+Costs: Router 0 (4), Router 1 (1), Router 3 (1), Router 4 (0)
+To update the tables, each router sends its own table to its neighbors and receives tables from them. Based on the received tables, the router updates its own table by selecting the minimum cost path to each destination. This process repeats until there are no more updates.
+
+Here are the steps to update the tables:
+
+Router 0 sends its table to Router 1 and Router 4
+Router 1 receives Router 0's table and updates its own table with the minimum cost paths: Router 0 (1), Router 2 (1), Router 4 (1), Router 1 (0)
+Router 1 sends its table to Router 0, Router 2, and Router 4
+Router 2 receives Router 1's table and updates its own table with the minimum cost paths: Router 1 (1), Router 3 (2), Router 0 (2), Router 2 (0)
+Router 2 sends its table to Router 1 and Router 3
+Router 3 receives Router 2's table and updates its own table with the minimum cost paths: Router 2 (1), Router 4 (2), Router 1 (2), Router 3 (0)
+Router 3 sends its table to Router 2 and Router 4
+Router 4 receives Router 0's table and updates its own table with the minimum cost paths: Router 0 (4), Router 1 (1), Router 3 (1), Router 4 (0)
+Router 4 sends its table to Router 0, Router 1, and Router 3
+Router 0 receives Router 4's table and updates its own table with the minimum cost paths: Router 1 (1), Router 4 (4), Router 0 (0)
+Router 0 sends its table to Router 1 and Router 4 (no changes)
+Router 1 and Router 4 receive Router 0's table and update their own tables (no changes)
