@@ -84,7 +84,7 @@ for value in router_list:
 #-----------------------------------Run program from a specified port-------------------
 #Need to run a port from the command line
 PORT = 8080
-HOST = "127.0.0.2"
+HOST = "127.0.0.1"
 
 
 if len(sys.argv)==2:
@@ -100,6 +100,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = (HOST , PORT)
 sock.bind(server_address)
 print(f"Listening on {server_address[0]}:{server_address[1]}...")
+
+
+while True:
+    data , addr = sock.recvfrom(1024)
+    print("Received message:" , data.decode() , "from" , addr)
 
  
 for router_ip in router_list:

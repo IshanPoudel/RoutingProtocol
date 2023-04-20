@@ -1,8 +1,8 @@
 
 import socket
 
-PORT = 8080
-HOST = "127.0.0.3"
+PORT = 5051
+HOST = "127.0.0.1"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = (HOST , PORT)

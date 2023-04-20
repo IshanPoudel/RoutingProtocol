@@ -1,40 +1,29 @@
-To construct the topology table with costs until convergence, we can use the Distance Vector Routing algorithm. Starting with each router's own table, we exchange information with neighboring routers to update each other's tables until no more updates are required.
+What IP address do I listen to here?
+127.0.0.1?
 
-Here is the initial configuration table for each router:
 
-Router 0:
+What does it mean to beconvergent?
+Am i supposed to be transmitting the router config file to every router. 
 
-Directly connected to: Router 1, Router 4
-Costs: Router 1 (1), Router 4 (4), Router 0 (0)
-Router 1:
+Say that I start from A , does it mean I send the config file to my neighbors B , C and them to their neightbor
+What does it mean to for B and C to recvie the IP table?
 
-Directly connected to: Router 0, Router 2, Router 4
-Costs: Router 0 (1), Router 2 (1), Router 4 (1), Router 1 (0)
-Router 2:
 
-Directly connected to: Router 1, Router 3
-Costs: Router 1 (1), Router 3 (1), Router 2 (0)
-Router 3:
+What protocols do I use for that?
 
-Directly connected to: Router 2, Router 4
-Costs: Router 2 (1), Router 4 (1), Router 3 (0)
-Router 4:
 
-Directly connected to: Router 0, Router 1, Router 3
-Costs: Router 0 (4), Router 1 (1), Router 3 (1), Router 4 (0)
-To update the tables, each router sends its own table to its neighbors and receives tables from them. Based on the received tables, the router updates its own table by selecting the minimum cost path to each destination. This process repeats until there are no more updates.
+When i conect from 127.0.0.1 to otherservers? Do I have to initialize the othetr servers or are they just listening
 
-Here are the steps to update the tables:
+I need to start the routers from the computer using different CLI windoes
 
-Router 0 sends its table to Router 1 and Router 4
-Router 1 receives Router 0's table and updates its own table with the minimum cost paths: Router 0 (1), Router 2 (1), Router 4 (1), Router 1 (0)
-Router 1 sends its table to Router 0, Router 2, and Router 4
-Router 2 receives Router 1's table and updates its own table with the minimum cost paths: Router 1 (1), Router 3 (2), Router 0 (2), Router 2 (0)
-Router 2 sends its table to Router 1 and Router 3
-Router 3 receives Router 2's table and updates its own table with the minimum cost paths: Router 2 (1), Router 4 (2), Router 1 (2), Router 3 (0)
-Router 3 sends its table to Router 2 and Router 4
-Router 4 receives Router 0's table and updates its own table with the minimum cost paths: Router 0 (4), Router 1 (1), Router 3 (1), Router 4 (0)
-Router 4 sends its table to Router 0, Router 1, and Router 3
-Router 0 receives Router 4's table and updates its own table with the minimum cost paths: Router 1 (1), Router 4 (4), Router 0 (0)
-Router 0 sends its table to Router 1 and Router 4 (no changes)
-Router 1 and Router 4 receive Router 0's table and update their own tables (no changes)
+
+
+
+
+You send the routing table to all the routers. 
+You use distance vector protocol for that. 
+You update the routing table , because there might be cheaper ways to get there. Djikstras algorithm .
+
+How do I store the routing algorithm? 
+
+Do I nned to open all the servers at once?
