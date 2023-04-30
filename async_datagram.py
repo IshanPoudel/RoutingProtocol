@@ -20,7 +20,7 @@ class RouterIP:
     def __init__(self , name):
         self.name = name
         # Children is  a dictionary that contains the  config and the cost
-        self.neighbors={}
+        self.neighbor={}
         self.sock=None
 
     def add_neighbors(self , neighbor_dict):
@@ -30,7 +30,7 @@ class RouterIP:
         self.sock=sock
 
     def __str__(self):
-        return f"MyClass(portnumber={self.name})"
+        return f"MyClass(portnumber={self.name} , neighbors = {self.neighbor})"
 
 with open('network.config' , 'r') as f:
     matrix_config = f.read()
@@ -103,31 +103,66 @@ for router in router_list:
 
 #Receive and send message async
 
-def receive_message(router):
 
+async def receive_message(router, queue):
     sock = router.sock
+    print(f"Starting receive loop for router {router.name}")
+    sock.settimeout(1.0)
+    while True:
+        try:
+            message, address = await loop.sock_recv(sock, 1024)
+            print("Message that i received\n")
+            message_str = message.decode()
+            queue.put_nowait((message_str, address))
+        except socket.timeout:
+            pass
 
     
-    message , address = sock.recvfrom(1024)
-    print(f"Received: {message.decode()} from {address}")
-
-    #Update the router config later
-  
 
 
 
-def send_message(router):
-    #Each socket will only send messae to its neighbors.
-    sock = router.sock 
-
-    for neighbor in router.neighbors:
-        port = int(neighbor[0])
-        weight = neighbor[1]
+async def send_message(router, queue):
+    sock = router.sock
+    
+    
+    for port, weight in router.neighbor.items():
+        port_int = int(port)
         
-        message = f"Message from router {router} to {port} with weight{weight}"
-        #Send message from the sock to the other one
-        sock.sendto(message , ('127.0.0.1' , port))
+        message = f"Message from router {router} to port {port} with weight{weight}"
+        print(message)
+        # Send message from the sock to the other one
+        sock.sendto(message.encode(), ('127.0.0.1', port_int))
+        # print(f"I sent the {message}")
+    # Check the queue for received messages
+    #Get messages to come back
+    
 
 
 
+
+loop = asyncio.new_event_loop()
+
+asyncio.set_event_loop(loop)
 #Add a separate coroutine to add and separate tasks.
+tasks = []
+
+queue = asyncio.Queue()
+
+for router in router_list:
+    # Start the receive_message and send_message coroutines for each router
+    send_task = loop.create_task(send_message(router, queue))
+    
+    if router.name == "5050":
+        pass
+    else:
+        receive_task = loop.create_task(receive_message(router, queue))
+        tasks.append(receive_task)
+
+    # Add the tasks to the list of tasks
+    tasks.append(send_task)
+    
+
+# Run all the tasks concurrently
+loop.run_until_complete(asyncio.wait(tasks))
+
+loop.close()

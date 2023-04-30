@@ -1,12 +1,14 @@
-import asyncio
-
+#Open router and specify the port. 
 #once you have filled the router class. 
 #Assigns different port numbers to each node depending on the start port number
 
-port_number =5050
+import sys
+
+
+port_number = int(sys.argv[1])
 
 #Read the config file and create a 2d array
-import sys
+
 import socket
 
 
@@ -20,7 +22,7 @@ class RouterIP:
     def __init__(self , name):
         self.name = name
         # Children is  a dictionary that contains the  config and the cost
-        self.neighbors={}
+        self.neighbor={}
         self.sock=None
 
     def add_neighbors(self , neighbor_dict):
@@ -30,7 +32,7 @@ class RouterIP:
         self.sock=sock
 
     def __str__(self):
-        return f"MyClass(portnumber={self.name})"
+        return f"MyClass(portnumber={self.name} , neighbors = {self.neighbor})"
 
 with open('network.config' , 'r') as f:
     matrix_config = f.read()
@@ -83,51 +85,60 @@ for value in router_list:
     print("\n")
 
 
-#Router list containes name and neighbor-dict with ip address andport
+#Need to know which node this is. 
+#send and receive message udp connection
 
-#Create six different udp connections. 
-socket_list=[]
-
+#Loop through therouterlist
+actual_socket = router_list[0]
 for router in router_list:
-    #For each router create a upd connection
-    sock = socket.socket(socket.AF_INET , socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET , socket.SO_REUSEADDR,1)
+    if int(router.name) == port_number:
+        actual_socket = router
 
-    #Bind the socket to address
-    local_address = ('127.0.0.1' , int(router.name))
-    sock.bind(local_address)
-    router.add_sock(sock)
+print(actual_socket)
 
+#once you get the actual socket , start sending and receiving messages to neighbours. 
+#bind
+sock = socket.socket(socket.AF_INET , socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET , socket.SO_REUSEADDR,1)
 
-
-
-#Receive and send message async
-
-def receive_message(router):
-
-    sock = router.sock
-
-    
-    message , address = sock.recvfrom(1024)
-    print(f"Received: {message.decode()} from {address}")
-
-    #Update the router config later
-  
+#Bind the socket to address , we get the port number from 
+local_address = ('127.0.0.1' , int(actual_socket.name))
+sock.bind(local_address)
 
 
 
-def send_message(router):
-    #Each socket will only send messae to its neighbors.
-    sock = router.sock 
+def listen_and_send_udp(sock , router):
 
-    for neighbor in router.neighbors:
-        port = int(neighbor[0])
-        weight = neighbor[1]
+
+    update_flag = 1
+    #No updates
+
+    try:
+        sock.settimeout(1.0)
+
+        while True:
+            try:
+                data, source_address = sock.recvfrom(1024)
+                message_received = data.decode()
+                print("Received message: {}".format(message_received))
+            except socket.timeout:
+                pass
+
+            #Send message to all its neighbors
+
+            if update_flag==1:
+                
+                for port, weight in router.neighbor.items():
+                    port_int = int(port)
+                    
+                    message = f"Message from router {router} to port {port} with weight {weight}"
+                    
+                    # Send message from the sock to the other one
+                    sock.sendto(message.encode(), ('127.0.0.1', port_int))
+                    print(message)
+                update_flag=0
+    except:
+        print("Error happened")
         
-        message = f"Message from router {router} to {port} with weight{weight}"
-        #Send message from the sock to the other one
-        sock.sendto(message , ('127.0.0.1' , port))
-
-
-
-#Add a separate coroutine to add and separate tasks.
+    
+listen_and_send_udp(sock , actual_socket)
