@@ -3,14 +3,17 @@
 #Assigns different port numbers to each node depending on the start port number
 
 import sys
+import time
 
 
 port_number = int(sys.argv[1])
+start_port_number=5050
 
 #Read the config file and create a 2d array
 
 import socket
 
+#-----------ENUM CLASS for ports-----------------
 
 # -----------------------------------Create Router Class-----------------------------
 
@@ -34,7 +37,7 @@ class RouterIP:
     def __str__(self):
         return f"MyClass(portnumber={self.name} , neighbors = {self.neighbor})"
 
-with open('network.config' , 'r') as f:
+with open('/Users/user/Desktop/CSE4344ComputerNetworks/RoutingImplementation/6diff/network.config' , 'r') as f:
     matrix_config = f.read()
 
 #Store the matrix_config
@@ -55,7 +58,7 @@ router_list=[]
 
 #Store the adjacency matrix as objects of RouterIp
 for index , matrix_row in enumerate(matrix):
-    router_config = str(port_number+index) 
+    router_config = str(start_port_number+index) 
     router = RouterIP(router_config)
     
     neighbor_dict = {}
@@ -67,7 +70,7 @@ for index , matrix_row in enumerate(matrix):
         #Check if neighbor
         if weight!=0:
             #Add to a dictionary
-            neighbor_dict.update({  str(port_number+i) : weight})  
+            neighbor_dict.update({  str(start_port_number+i) : weight})  
         i=i+1
     router.add_neighbors(neighbor_dict)
             
@@ -80,9 +83,7 @@ for index , matrix_row in enumerate(matrix):
 
 #Router list contains all the ip config , neighbors and cost
 for value in router_list:
-    print(value.name)
-    print(value.neighbor)
-    print("\n")
+    print(value)
 
 
 #Need to know which node this is. 
@@ -109,6 +110,8 @@ sock.bind(local_address)
 
 def listen_and_send_udp(sock , router):
 
+    print(router)
+
 
     update_flag = 1
     #No updates
@@ -120,7 +123,9 @@ def listen_and_send_udp(sock , router):
             try:
                 data, source_address = sock.recvfrom(1024)
                 message_received = data.decode()
+
                 print("Received message: {}".format(message_received))
+
             except socket.timeout:
                 pass
 
@@ -131,14 +136,19 @@ def listen_and_send_udp(sock , router):
                 for port, weight in router.neighbor.items():
                     port_int = int(port)
                     
-                    message = f"Message from router {router} to port {port} with weight {weight}"
+                    message = f"Message from router {router.name} to router {port} with weight {weight}"
                     
                     # Send message from the sock to the other one
                     sock.sendto(message.encode(), ('127.0.0.1', port_int))
                     print(message)
                 update_flag=0
-    except:
-        print("Error happened")
+    except Exception as error:
+        print(error)
         
-    
+# /Users/user/Desktop/CSE 4344 Computer Networks/RoutingImplementation/6diff/router.py
+
+#Add a timeout for all scripts to open
+
+time.sleep(10)
+print(f"\n\n Starting to listen . Currently at router {actual_socket.name} \n\n")
 listen_and_send_udp(sock , actual_socket)
