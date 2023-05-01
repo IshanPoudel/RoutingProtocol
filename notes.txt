@@ -27,3 +27,9 @@ You update the routing table , because there might be cheaper ways to get there.
 How do I store the routing algorithm? 
 
 Do I nned to open all the servers at once?
+
+https://cseweb.ucsd.edu/classes/sp16/cse123-a/lectures/123-sp16-l15.pdf
+
+it is sending the values from the first router , 
+then waiting for the first router
+and so on

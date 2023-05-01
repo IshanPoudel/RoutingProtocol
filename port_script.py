@@ -90,3 +90,6 @@ data, addr = sock.recvfrom(1024)
 
 # Print the received data and the address it came from
 print(f"Received data: {data} from address: {addr}")
+
+
+#Open all the ports. 

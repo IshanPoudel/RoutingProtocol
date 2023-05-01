@@ -105,14 +105,17 @@ for router in router_list:
 
 async def receive_message(router):
     sock = router.sock
+    print(f"i am here for {router}")
 
     while True:
-        try:
-            message, address = await asyncio.wait_for(sock.recvfrom(1024), timeout=5)
-            print(f"Received: {message.decode()} from {address}")
-        except asyncio.TimeoutError:
-            print(f"No message received within 5 seconds for {router}")
+        # Use loop.sock_recv() to receive data from the socket
+        data = await loop.sock_recv(sock, 1024)
 
+        # Use the remote address of the socket to identify the sender
+        address = sock.getpeername()
+        print(f"Received: {data.decode()} from {address}")
+
+    #Update the router config later
   
 
 

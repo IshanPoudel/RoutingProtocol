@@ -18,3 +18,5 @@ for i, sock in enumerate(sockets):
 for i, sock in enumerate(sockets):
     data, address = sock.recvfrom(1024)
     print(f"Received message from socket {i}: {data.decode()}")
+
+

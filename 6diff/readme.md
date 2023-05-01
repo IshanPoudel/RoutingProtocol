@@ -1,5 +1,15 @@
+
+
+What to change
+In router.py , change the network.config path to the absolute_path in the computer. 
+
+In run_routers.sh , change the absolute_path of router.py
+osascript -e 'tell application "Terminal" to do script "python3 /Users/user/Desktop/CSE4344ComputerNetworks/RoutingImplementation/6diff/router.py 5050"'
+
 How to run
 
+Make the required changes
+chmod +x run_routers.sh
 ./run_routers.sh
 
 
