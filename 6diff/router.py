@@ -36,7 +36,7 @@ class RouterIP:
         self.sock=sock
 
     def __str__(self):
-        return f"MyClass(portnumber={self.name} , neighbors = {self.neighbor})"
+        return f"(portnumber={self.name} , neighbors = {self.neighbor})"
 
 with open('/Users/user/Desktop/CSE4344ComputerNetworks/RoutingImplementation/6diff/network.config' , 'r') as f:
     matrix_config = f.read()
@@ -57,14 +57,16 @@ for line in lines:
 
 router_list=[]
 
+print("Adjacency matrix for the network config")
 #Store the adjacency matrix as objects of RouterIp
 for index , matrix_row in enumerate(matrix):
     router_config = str(start_port_number+index) 
     router = RouterIP(router_config)
     
     neighbor_dict = {}
-
+    
     print(matrix_row)
+    
     # Get each value and see if it is a neighbor
     i=0
     for weight in matrix_row:
@@ -83,8 +85,10 @@ for index , matrix_row in enumerate(matrix):
 #Store the port number
 
 #Router list contains all the ip config , neighbors and cost
+print("Network Configuration")
 for value in router_list:
     print(value)
+print("\n\n\n")
 
 
 
@@ -100,10 +104,15 @@ for router in router_list:
     if int(router.name) == port_number:
         actual_socket = router
 
+
+print(f"Currently using router{actual_socket.name}\n")
 print(actual_socket)
 
+
 #once you get the actual socket , start sending and receiving messages to neighbours. 
-#bind
+
+
+#Bind socket to your router
 sock = socket.socket(socket.AF_INET , socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET , socket.SO_REUSEADDR,1)
 
@@ -111,11 +120,19 @@ sock.setsockopt(socket.SOL_SOCKET , socket.SO_REUSEADDR,1)
 local_address = ('127.0.0.1' , int(actual_socket.name))
 sock.bind(local_address)
 
-
+print("\nCurrent IP connection details")
+print(f"Local address: {sock.getsockname()} ")
+print(f"Port number: {actual_socket.name} ")
 
 def listen_and_send_udp(sock , router):
+    """ summary for listen_and_send_udp
 
-    print(routing_table)
+    Args:
+        sock ([type]): [description]
+        router ([type]): [description]
+    """
+
+    
 
     single_router = routing_table[0]
 
@@ -131,12 +148,18 @@ def listen_and_send_udp(sock , router):
     update_flag = 1
     #No updates
 
+    
+
     try:
         sock.settimeout(1.0)
+        convergence_count = 0
 
         while True:
             #Receive message
             try:
+
+                prev_routing_table = single_router.neighbor.copy()
+
                 data, source_address = sock.recvfrom(1024)
                 message_received = data.decode()
 
@@ -148,14 +171,13 @@ def listen_and_send_udp(sock , router):
                 router_name = message["router_name"]
                 cost = message["cost"]
                 neighbor_table = message["table"]
-
-                print(router_name)
-                print(cost)
-                print(neighbor_dict)
+                print("\n")
+                
 
 
                 #------------Update the damn routing table----------------
                 #Check the neighbor table with your own and see if you need to update or add
+                print("\n--------------------------------------------------")
 
                 for dest , dest_cost in neighbor_table.items():
                     #Total cost to get there.
@@ -168,14 +190,45 @@ def listen_and_send_udp(sock , router):
                         if dest in single_router.neighbor:
                             if total_cost< single_router.neighbor[dest]:
                                 single_router.neighbor[dest]=total_cost
+                                
                                 update_flag=1
+                            
                         else:
                             #If not in destination table
+                            print(f"Updated cost of getting to  {dest} from infinity to {total_cost} ")
+
                             single_router.neighbor[dest] = total_cost
                             update_flag=1
+                            
                 
-                print("After update")
-                print(single_router.neighbor)
+                print(f"Router table updated: {single_router.neighbor}")
+                print("--------------------------------------------------\n")
+
+                
+
+
+                if single_router.neighbor!= prev_routing_table:
+                    convergence_count=0
+                else:
+                    convergence_count+=1
+
+
+                # if single_router.neighbor == prev_routing_table:
+                #     convergence_count=convergence_count+1
+                # else:
+                #     prev_routing_table = single_router.neighbor
+                #     convergence_count=0
+                
+                if convergence_count==7:
+                    print(f"\n\nFinal Routing Table for {single_router.name} \n\n")
+                    print(f"IP address: 127.0.0.1")
+                    print(f"UTA ID: 1001838432")
+                    print(f"Total value of n: {convergence_count}" )
+                    print(f"Payload size: {sys.getsizeof(single_router.neighbor)}")
+
+                    print(single_router.neighbor)
+                    sys.exit()
+
 
 
             except socket.timeout:
@@ -213,20 +266,21 @@ def listen_and_send_udp(sock , router):
                     
 
                     sock.sendto(message.encode(), ('127.0.0.1', port_int))
-                    print("Message I sent")
+                    print(f"Message I sent to router {port_int}")
                     print(message)
+                    print("\n")
                 update_flag=0
     except Exception as error:
         print(error)
         
-# /Users/user/Desktop/CSE 4344 Computer Networks/RoutingImplementation/6diff/router.py
 
-#Add a timeout for all scripts to open
 
+
+
+#Start listening
 time.sleep(5)
 print(f"\n\n Starting to listen . Currently at router {actual_socket.name} \n\n")
 
 listen_and_send_udp(sock , actual_socket)
 
 
-# Need to know where I receive the message from
