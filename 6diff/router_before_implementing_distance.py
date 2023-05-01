@@ -4,7 +4,6 @@
 
 import sys
 import time
-import json
 
 
 port_number = int(sys.argv[1])
@@ -115,18 +114,8 @@ sock.bind(local_address)
 
 def listen_and_send_udp(sock , router):
 
-    print(routing_table)
+    print(router)
 
-    single_router = routing_table[0]
-
-    for router_single in routing_table:
-        if router_single.name == router.name:
-            single_router=router_single
-            break
-    #Single router has the information you need
-    print(single_router.neighbor) 
-    
-    
 
     update_flag = 1
     #No updates
@@ -135,12 +124,9 @@ def listen_and_send_udp(sock , router):
         sock.settimeout(1.0)
 
         while True:
-            #Receive message
             try:
                 data, source_address = sock.recvfrom(1024)
                 message_received = data.decode()
-
-                message = json.loads(message_received)
 
                 print("Received message: {}".format(message_received))
 
@@ -150,29 +136,14 @@ def listen_and_send_udp(sock , router):
             #Send message to all its neighbors
 
             if update_flag==1:
-
-                #Send the routing table to your neighbors. 
-                #get which part to find
-
-                #Get neighbors data
-                # for value in routing_table:
-                #     if value.name == router.name:
-
-                #Send the routing table to its neighbors.
-
+                
                 for port, weight in router.neighbor.items():
                     port_int = int(port)
                     
-                    # message = f"Message from router {router.name} to router {port} with weight {weight}"
+                    message = f"Message from router {router.name} to router {port} with weight {weight}"
                     
-                    #Send the dict over
-                    message= json.dumps(single_router.neighbor)
                     # Send message from the sock to the other one
-                    #Send it in a specific way
-                    
-
                     sock.sendto(message.encode(), ('127.0.0.1', port_int))
-                    print("Message I sent")
                     print(message)
                 update_flag=0
     except Exception as error:
@@ -182,9 +153,8 @@ def listen_and_send_udp(sock , router):
 
 #Add a timeout for all scripts to open
 
-time.sleep(5)
+time.sleep(10)
 print(f"\n\n Starting to listen . Currently at router {actual_socket.name} \n\n")
-
 listen_and_send_udp(sock , actual_socket)
 
 

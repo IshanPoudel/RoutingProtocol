@@ -1,0 +1,14 @@
+To run the distance vector algo
+
+For a node , 
+send it's routing table to its neighbors. 
+
+Once you get a routing table from somebody ,
+
+see if there are any nodes in there that is not in your neighbor. 
+If so your distance to that node would be cost from you to routrt_that_you got the table + cost from router_that_ygt to node
+
+But also check , if thenew cost to a node will be smaller than what it is on your side. 
+
+Also  send the new table to your neighbors
+
