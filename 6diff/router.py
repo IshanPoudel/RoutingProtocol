@@ -147,11 +147,35 @@ def listen_and_send_udp(sock , router):
                 print("Received message: {}".format(message))
                 router_name = message["router_name"]
                 cost = message["cost"]
-                neighbor_dict = message["table"]
+                neighbor_table = message["table"]
 
                 print(router_name)
                 print(cost)
                 print(neighbor_dict)
+
+
+                #------------Update the damn routing table----------------
+                #Check the neighbor table with your own and see if you need to update or add
+
+                for dest , dest_cost in neighbor_table.items():
+                    #Total cost to get there.
+                    #Don't compare with your own routing protocol
+                    if dest == single_router.name:
+                        pass
+                    else:
+                        total_cost = cost+ dest_cost
+                        #Check if destination is in your own routing tabler
+                        if dest in single_router.neighbor:
+                            if total_cost< single_router.neighbor[dest]:
+                                single_router.neighbor[dest]=total_cost
+                                update_flag=1
+                        else:
+                            #If not in destination table
+                            single_router.neighbor[dest] = total_cost
+                            update_flag=1
+                
+                print("After update")
+                print(single_router.neighbor)
 
 
             except socket.timeout:
