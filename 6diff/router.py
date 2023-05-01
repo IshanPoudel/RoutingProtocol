@@ -142,7 +142,17 @@ def listen_and_send_udp(sock , router):
 
                 message = json.loads(message_received)
 
-                print("Received message: {}".format(message_received))
+
+
+                print("Received message: {}".format(message))
+                router_name = message["router_name"]
+                cost = message["cost"]
+                neighbor_dict = message["table"]
+
+                print(router_name)
+                print(cost)
+                print(neighbor_dict)
+
 
             except socket.timeout:
                 pass
@@ -165,10 +175,17 @@ def listen_and_send_udp(sock , router):
                     
                     # message = f"Message from router {router.name} to router {port} with weight {weight}"
                     
+
                     #Send the dict over
-                    message= json.dumps(single_router.neighbor)
-                    # Send message from the sock to the other one
-                    #Send it in a specific way
+                    
+                    #Send the dict , your router name and weight 
+                    message = {
+                        "router_name": single_router.name ,
+                        "cost" : weight ,
+                        "table": single_router.neighbor
+                    }
+
+                    message=json.dumps(message)
                     
 
                     sock.sendto(message.encode(), ('127.0.0.1', port_int))
@@ -188,3 +205,4 @@ print(f"\n\n Starting to listen . Currently at router {actual_socket.name} \n\n"
 listen_and_send_udp(sock , actual_socket)
 
 
+# Need to know where I receive the message from
